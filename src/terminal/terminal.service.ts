@@ -5,6 +5,7 @@ import path from 'path';
 import { ReadStream, WriteStream } from 'tty';
 import uuid from 'uuid';
 import { injectable, inject } from 'inversify';
+import { Logger } from 'pino';
 import { ConnectConfig } from 'ssh2';
 import SshClient from 'ssh2-promise';
 import { TYPES } from './terminal.constant';
@@ -50,6 +51,12 @@ export class TerminalService implements ITerminalService {
   ];
 
   /**
+   * Logger.
+   */
+  @inject(TYPES.Logger)
+  protected logger: Logger;
+
+  /**
    * Command consumer.
    */
   @inject(TYPES.CommandConsumer)
@@ -76,13 +83,18 @@ export class TerminalService implements ITerminalService {
     options: ITerminalServiceRunTerminalOptions,
   ): Promise<SshClient> {
     const sshClient = this.sshClientFactory(options);
+
     await sshClient.connect();
+    this.logger.info(`Connection successful (host=${options.host})`);
 
     const environments = await this.getRemoteEnvironments(sshClient);
     const sessionId = environments['XDG_SESSION_ID'] || uuid.v4();
     const sessionDirectory = this.generateSessionDirectory(sessionId, environments['TMPDIR']);
+
+    this.logger.info(`Copy scripts to server (host=${options.host})`);
     await this.copyScriptsToRemoteDirectory(sshClient, sessionDirectory);
 
+    this.logger.info(`Run interactive shell (host=${options.host})`);
     const consumerCommand = `${sessionDirectory}/_consumer.sh`;
     await this.commandConsumer.run(sshClient, consumerCommand);
 
