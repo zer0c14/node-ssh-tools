@@ -1,2 +1,2 @@
-# node-ssh-tools
-Different ssh tools (terminal, sftp, port fowarding)
+# @zer0c14/ssh-tools
+Some ssh tools (terminal, port forwarding, tunnel)
