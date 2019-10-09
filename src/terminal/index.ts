@@ -4,6 +4,13 @@
 export { TYPES } from './terminal.constant';
 export { ITerminalAction, TerminalAction } from './terminal.action';
 export { PutCommandHandler, GetCommandHandler } from './command';
+
+export {
+  IConnectionString,
+  IConnectionStringParser,
+  ConnectionStringParser,
+} from './connection.parser';
+
 export {
   ITerminalShell,
   ITerminalShellRunOptions,

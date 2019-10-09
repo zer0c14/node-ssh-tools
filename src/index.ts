@@ -3,8 +3,6 @@
 
 import bootstrap from './bootstrap';
 
-export { IConnectionStringParser, parseConnectionString } from './common';
-
 export {
   TerminalAction,
   TerminalService,
@@ -29,6 +27,9 @@ export {
   TerminalShell,
   ITerminalShellRunOptions,
   ITerminalShell,
+  ConnectionStringParser,
+  IConnectionStringParser,
+  IConnectionString,
 } from './terminal';
 
 export {

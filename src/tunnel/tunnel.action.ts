@@ -54,7 +54,7 @@ export class TunnelAction {
     this.tunnelService
       .runLocalTunnel({
         ...this.tunnelRuleParser.parse(tunnelRule),
-        ...this.connectionStringParser(connectionString),
+        ...this.connectionStringParser.parse(connectionString),
       })
       .catch(error => this.logger.error(error));
   }

@@ -48,7 +48,7 @@ export class TerminalAction {
         stdin: process.stdin,
         stdout: process.stdout,
         stderr: process.stderr,
-        ...this.connectionStringParser(connectionString),
+        ...this.connectionStringParser.parse(connectionString),
       })
       .catch(error => this.logger.error(error));
   }

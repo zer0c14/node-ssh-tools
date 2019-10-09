@@ -7,7 +7,6 @@ import ssh2 from 'ssh2';
 import SshClient from 'ssh2-promise';
 import createLogger from 'pino';
 import { Container, interfaces } from 'inversify';
-import { TYPES as COMMON_TYPES, parseConnectionString } from './common';
 
 import {
   TYPES as TUNNEL_TYPES,
@@ -28,6 +27,7 @@ import {
   GetCommandHandler,
   PutCommandHandler,
   TerminalShell,
+  ConnectionStringParser,
 } from './terminal';
 
 /**
@@ -37,13 +37,6 @@ import {
  * @future - add other container for unit testing (fixtures)
  */
 export const container = new Container();
-
-/**
- * Common binding.
- */
-container
-  .bind(COMMON_TYPES.ConnectionStringParser)
-  .toConstantValue(parseConnectionString);
 
 /**
  * Terminal binding.
@@ -90,10 +83,7 @@ container
  */
 container
   .bind(TERMINAL_TYPES.ConnectionStringParser)
-  .toDynamicValue(({ container }: interfaces.Context) =>
-    container.get(COMMON_TYPES.ConnectionStringParser),
-  )
-  .inSingletonScope();
+  .to(ConnectionStringParser);
 
 /**
  * Tunnel binding.
@@ -112,14 +102,9 @@ container
   .toConstantValue(options => new ssh2.Server(options));
 
 /**
- * Connection string parser alias.
+ * Connection string parser.
  */
-container
-  .bind(TUNNEL_TYPES.ConnectionStringParser)
-  .toDynamicValue(({ container }: interfaces.Context) =>
-    container.get(COMMON_TYPES.ConnectionStringParser),
-  )
-  .inSingletonScope();
+container.bind(TUNNEL_TYPES.ConnectionStringParser).to(ConnectionStringParser);
 
 /**
  * Export container.
