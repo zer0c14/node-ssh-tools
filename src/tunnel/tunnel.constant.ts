@@ -11,7 +11,7 @@ export const TYPES = {
   TunnelRuleParser: Symbol.for('Tunnel\\TunnelRuleParser'),
   SshClientHelper: Symbol.for('Tunnel\\SshClientHelper'),
   SshServerHelper: Symbol.for('Tunnel\\SshServerHelper'),
-  TcpServerFactory: Symbol.for('Tunnel\\TcpServerFactory'),
+  LocalTunnelServerFactory: Symbol.for('Tunnel\\LocalTunnelServerFactory'),
   SshClientFactory: Symbol.for('Tunnel\\SshClientFactory'),
   SshServerFactory: Symbol.for('Tunnel\\SshServerFactory'),
   ConnectionStringParser: Symbol.for('Tunnel\\ConnectionStringParser'),

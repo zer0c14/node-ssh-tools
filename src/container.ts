@@ -2,7 +2,6 @@
 // See the LICENSE for more information.
 
 import 'reflect-metadata';
-import net from 'net';
 import ssh2 from 'ssh2';
 import SshClient from 'ssh2-promise';
 import createLogger from 'pino';
@@ -29,6 +28,7 @@ import {
   TerminalShell,
   ConnectionStringParser,
 } from './terminal';
+import { LocalTunnelServer } from './tunnel/tunnel.server';
 
 /**
  * Container.
@@ -93,7 +93,15 @@ container.bind(TUNNEL_TYPES.TunnelRuleParser).to(TunnelRuleParser);
 container.bind(TUNNEL_TYPES.TunnelAction).to(TunnelAction);
 container.bind(TUNNEL_TYPES.TunnelService).to(TunnelService);
 container.bind(TUNNEL_TYPES.SshClientHelper).toConstantValue(SshClientHelper);
-container.bind(TUNNEL_TYPES.TcpServerFactory).toConstantValue(net.createServer);
+container
+  .bind(TUNNEL_TYPES.LocalTunnelServerFactory)
+  .toDynamicValue(({ container }: interfaces.Context) => options =>
+    new LocalTunnelServer({
+      logger: container.get(TUNNEL_TYPES.Logger),
+      ...options,
+    }),
+  )
+  .inSingletonScope();
 container
   .bind(TUNNEL_TYPES.SshClientFactory)
   .toConstantValue(() => new ssh2.Client());

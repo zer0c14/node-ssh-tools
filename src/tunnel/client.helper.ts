@@ -1,20 +1,13 @@
 // Copyright (c) 2019-present, Anton Makarov <zer0c14@gmail.com>
 // See the LICENSE for more information.
 
-import { Client, ClientChannel, ConnectConfig, Connection } from 'ssh2';
+import { Client, ConnectConfig } from 'ssh2';
 
 /**
  * Ssh client helper interface.
  */
 export interface ISshClientHelper {
   connect(sshClient: Client, connectConfig: ConnectConfig): Promise<Client>;
-  forwardOut(
-    client: Client | Connection,
-    srcIp: string,
-    srcPort: number,
-    dstIp: string,
-    dstPort: number,
-  ): Promise<ClientChannel>;
 }
 
 /**
@@ -36,27 +29,6 @@ export class SshClientHelper {
         .on('error', error => (connectionError = error))
         .on('close', () => reject(connectionError))
         .connect(connectConfig);
-    });
-  }
-
-  /**
-   * @param client
-   * @param srcIp
-   * @param srcPort
-   * @param dstIp
-   * @param dstPort
-   */
-  public static forwardOut(
-    client: Client,
-    srcIp: string,
-    srcPort: number,
-    dstIp: string,
-    dstPort: number,
-  ): Promise<ClientChannel> {
-    return new Promise((resolve, reject) => {
-      client.forwardOut(srcIp, srcPort, dstIp, dstPort, (error, stream) =>
-        error !== null ? resolve(stream) : reject(error),
-      );
     });
   }
 }

@@ -44,7 +44,7 @@ export {
   ITunnelService,
   ITunnelServiceSshServerFactory,
   IRunRemoteTunnelOptions,
-  ITunnelServiceTcpServerFactory,
+  ITunnelServiceLocalTunnelServerFactory,
   ITunnelServiceSshClientFactory,
   IRunLocalTunnelOptions,
 } from './tunnel';

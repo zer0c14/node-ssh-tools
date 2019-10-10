@@ -1,13 +1,12 @@
 // Copyright (c) 2019-present, Anton Makarov <zer0c14@gmail.com>
 // See the LICENSE for more information.
 
-import { promisify } from 'util';
-import net, { Socket } from 'net';
 import { Logger } from 'pino';
 import { inject, injectable } from 'inversify';
 import { Client, ConnectConfig, Server, ServerConfig } from 'ssh2';
 import { TYPES } from './tunnel.constant';
 import { ISshClientHelper } from './client.helper';
+import { ILocalTunnelServer } from './tunnel.server';
 
 /**
  * Run local tunnel options interface.
@@ -42,10 +41,20 @@ export interface ITunnelServiceSshServerFactory {
 }
 
 /**
- * Tcp server factory interface.
+ *  Local tunnel server factory options interface.
  */
-export interface ITunnelServiceTcpServerFactory {
-  (connectionListener?: (socket: Socket) => void): net.Server;
+export interface ITunnelServiceLocalTunnelServerFactoryOptions {
+  logger?: Logger;
+  sshClient: Client;
+  remoteAddress: string;
+  remotePort: number;
+}
+
+/**
+ * Local tunnel server factory interface.
+ */
+export interface ITunnelServiceLocalTunnelServerFactory {
+  (options: ITunnelServiceLocalTunnelServerFactoryOptions): ILocalTunnelServer;
 }
 
 /**
@@ -76,8 +85,8 @@ export class TunnelService implements ITunnelService {
   /**
    * Tcp server factory.
    */
-  @inject(TYPES.TcpServerFactory)
-  protected tcpServerFactory: ITunnelServiceTcpServerFactory;
+  @inject(TYPES.LocalTunnelServerFactory)
+  protected localTunnelServerFactory: ITunnelServiceLocalTunnelServerFactory;
 
   /**
    * Ssh client factory.
@@ -104,20 +113,11 @@ export class TunnelService implements ITunnelService {
 
     this.logger.info(`Connection successful (host=${options.host})`);
 
-    const { remoteAddress, remotePort } = options;
-    const tcpServer = this.tcpServerFactory(socket => {
-      this.sshClientHelper
-        .forwardOut(sshClient, '', 0, remoteAddress, remotePort)
-        .then(stream => {
-          stream.pipe(socket).pipe(stream);
-          stream.on('close', () => tcpServer.close());
-        })
-        .catch(error => this.logger.error(error));
-    });
-    tcpServer.on('close', () => sshClient.end());
-
-    const listenTcpServer = promisify(tcpServer.listen.bind(tcpServer));
-    await listenTcpServer(options.localPort, options.localAddress);
+    await this.localTunnelServerFactory({
+      sshClient: sshClient,
+      remoteAddress: options.remoteAddress,
+      remotePort: options.remotePort,
+    }).listen(options.localPort, options.localAddress);
 
     this.logger.info(
       `Forwarded ${options.localAddress || ':'}:${options.localPort} ` +
