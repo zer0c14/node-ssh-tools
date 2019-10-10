@@ -33,7 +33,13 @@ export class ConnectionStringParser implements IConnectionStringParser {
    * @param value
    */
   parse(value: string): IConnectionString {
-    const connectionString = new ConnectionString(value);
+    
+    const defaults = {
+        hosts: [{name: 'localhost', port: 22}],
+        user: os.userInfo().username
+    };
+    
+    const connectionString = new ConnectionString(value, defaults);
 
     if (
       connectionString.protocol ||
@@ -44,9 +50,9 @@ export class ConnectionStringParser implements IConnectionStringParser {
     }
 
     return {
-      host: connectionString.hosts[0].name || 'localhost',
-      port: connectionString.hosts[0].port || 22,
-      username: connectionString.user || os.userInfo().username,
+      host: connectionString.hostname,
+      port: connectionString.port,
+      username: connectionString.user,
       password: connectionString.password,
     };
   }
